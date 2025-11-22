@@ -46,8 +46,6 @@ def index(*, context):
 @app.route("/call_api")
 @auth.login_required(scopes=os.getenv("SCOPE", "").split())
 def call_downstream_api(*, context):
-    # Print the access token to the console for manual use
-    print("Access Token:", context.get('access_token'))
     api_result = requests.get(  # Use access token to call a web api
         os.getenv("ENDPOINT"),
         headers={'Authorization': 'Bearer ' + context['access_token']},
