@@ -2,12 +2,23 @@ import os
 import requests
 from flask import Flask, render_template
 from identity.flask import Auth
+from werkzeug.middleware.proxy_fix import ProxyFix
 import app_config
 
 __version__ = "0.9.0"  # The version of this sample, for troubleshooting purpose
 
 app = Flask(__name__)
 app.config.from_object(app_config)
+
+# Add ProxyFix middleware to trust forwarded headers from Application Gateway
+app.wsgi_app = ProxyFix(
+    app.wsgi_app,
+    x_for=1,      # Trust 1 proxy for X-Forwarded-For
+    x_proto=1,    # Trust 1 proxy for X-Forwarded-Proto
+    x_host=1,     # Trust 1 proxy for X-Forwarded-Host
+    x_prefix=1    # Trust 1 proxy for X-Forwarded-Prefix
+)
+
 auth = Auth(
     app,
     authority=os.getenv("AUTHORITY"),
